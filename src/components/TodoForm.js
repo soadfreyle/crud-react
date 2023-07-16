@@ -5,7 +5,7 @@ const initialFormValues = {
   description: "",
 };
 
-const TodoForm = ({ todoAdd, todoEdit }) => {
+const TodoForm = ({ todoAdd, todoEdit, todoUpdate, setTodoEdit }) => {
   const [formValues, setFormValues] = useState(initialFormValues);
   const { title, description } = formValues;
   const [error, setError] = useState(null);
@@ -14,6 +14,8 @@ const TodoForm = ({ todoAdd, todoEdit }) => {
   useEffect(() => {
     if (todoEdit) {
       setFormValues(todoEdit);
+    } else {
+      setFormValues(initialFormValues);
     }
   }, [todoEdit]);
 
@@ -37,9 +39,14 @@ const TodoForm = ({ todoAdd, todoEdit }) => {
       setError("Debes indicar una descripción");
       return;
     }
-    todoAdd(formValues);
-    setFormValues(initialFormValues);
-    setSuccessMessage("Agregado con exito");
+    if (todoEdit) {
+      todoUpdate(formValues);
+      setSuccessMessage("Actualizado con exito");
+    } else {
+      todoAdd(formValues);
+      setSuccessMessage("Agregado con exito");
+      setFormValues(initialFormValues);
+    }
 
     setTimeout(() => {
       setSuccessMessage(null);
@@ -51,7 +58,18 @@ const TodoForm = ({ todoAdd, todoEdit }) => {
 
   return (
     <div>
-      <h2>Nueva tarea</h2>
+      <h2 className="text-center display-5">
+        {todoEdit ? "Editar tarea" : "Nueva tarea"}
+      </h2>
+
+      {todoEdit && (
+        <button
+          onClick={() => setTodoEdit(null)}
+          className="btn btn-sm btn-warning mb-2"
+        >
+          Cancelar edición
+        </button>
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
@@ -71,7 +89,9 @@ const TodoForm = ({ todoAdd, todoEdit }) => {
           onChange={handleInputChange}
         ></textarea>
 
-        <button className="btn btn-primary btn-block mt-2">Nueva tarea</button>
+        <button className="btn btn-primary btn-block mt-2">
+          {todoEdit ? "Actualizar tarea" : "Agregar tarea"}
+        </button>
       </form>
       {error && <div className="alert alert-danger mt-2">{error}</div>}
 
